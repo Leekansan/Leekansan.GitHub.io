@@ -213,6 +213,7 @@ img.thumbnail {
   max-width: 50%;
   font-size: 1.15rem;
   position: relative;
+  letter-spacing: 0.08rem;
 }
 .rtl {
   direction: rtl;
