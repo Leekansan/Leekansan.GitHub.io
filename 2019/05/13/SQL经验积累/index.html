@@ -7,19 +7,19 @@
 
 
 
-    <meta name="description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table 多字段查询同一个表里的多个字段123456SELECT	* FROM	table_one WHERE	concat( col1, col2 ) LIKE &amp;apos;%keywords%&amp;apos; 不同表不同字段1234567SELECT	* FROM	table_one t1	INNER J">
+    <meta name="description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table">
 <meta name="keywords" content="SQL,数据分析">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SQL笔记">
 <meta property="og:url" content="http://yoursite.com/2019/05/13/SQL经验积累/index.html">
 <meta property="og:site_name" content="漱石杂货">
-<meta property="og:description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table 多字段查询同一个表里的多个字段123456SELECT	* FROM	table_one WHERE	concat( col1, col2 ) LIKE &amp;apos;%keywords%&amp;apos; 不同表不同字段1234567SELECT	* FROM	table_one t1	INNER J">
+<meta property="og:description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
-<meta property="og:updated_time" content="2019-06-11T09:56:43.556Z">
+<meta property="og:updated_time" content="2019-06-11T10:02:06.549Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQL笔记">
-<meta name="twitter:description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table 多字段查询同一个表里的多个字段123456SELECT	* FROM	table_one WHERE	concat( col1, col2 ) LIKE &amp;apos;%keywords%&amp;apos; 不同表不同字段1234567SELECT	* FROM	table_one t1	INNER J">
+<meta name="twitter:description" content="###说在最前本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table">
 <meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
 
 
@@ -158,7 +158,7 @@
                 <span class="level-item has-text-grey">
                     
                     
-                    6 分钟 读完 (大约 887 个字)
+                    6 分钟 读完 (大约 888 个字)
                 </span>
                 
                 
@@ -167,7 +167,7 @@
         
         <div class="content">
             <p>###说在最前<br>本文持续更新，记录sql及hive使用经验</p>
-<p>注：只与查询相关，不涉及增删、改动table</p>
+<p>注：只与查询相关，不涉及增删、改动table<br><a id="more"></a></p>
 <h3 id="多字段查询"><a href="#多字段查询" class="headerlink" title="多字段查询"></a>多字段查询</h3><h4 id="同一个表里的多个字段"><a href="#同一个表里的多个字段" class="headerlink" title="同一个表里的多个字段"></a>同一个表里的多个字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">WHERE</span><br><span class="line">	concat( col1, col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
 <h4 id="不同表不同字段"><a href="#不同表不同字段" class="headerlink" title="不同表不同字段"></a>不同表不同字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one t1</span><br><span class="line">	INNER JOIN table_two t2 ON t1.id = t2.id </span><br><span class="line">WHERE</span><br><span class="line">	concat( t1.col1, t2.col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
 <h3 id="行列转换"><a href="#行列转换" class="headerlink" title="行列转换"></a>行列转换</h3><h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><table>

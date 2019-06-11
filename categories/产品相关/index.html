@@ -164,7 +164,7 @@
                 <span class="level-item has-text-grey">
                     
                     
-                    6 分钟 读完 (大约 887 个字)
+                    6 分钟 读完 (大约 888 个字)
                 </span>
                 
                 
@@ -173,72 +173,26 @@
         
         <div class="content">
             <p>###说在最前<br>本文持续更新，记录sql及hive使用经验</p>
-<p>注：只与查询相关，不涉及增删、改动table</p>
-<h3 id="多字段查询"><a href="#多字段查询" class="headerlink" title="多字段查询"></a>多字段查询</h3><h4 id="同一个表里的多个字段"><a href="#同一个表里的多个字段" class="headerlink" title="同一个表里的多个字段"></a>同一个表里的多个字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">WHERE</span><br><span class="line">	concat( col1, col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
-<h4 id="不同表不同字段"><a href="#不同表不同字段" class="headerlink" title="不同表不同字段"></a>不同表不同字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one t1</span><br><span class="line">	INNER JOIN table_two t2 ON t1.id = t2.id </span><br><span class="line">WHERE</span><br><span class="line">	concat( t1.col1, t2.col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
-<h3 id="行列转换"><a href="#行列转换" class="headerlink" title="行列转换"></a>行列转换</h3><h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><table>
-<thead>
-<tr>
-<th style="text-align:center">year</th>
-<th style="text-align:center">month</th>
-<th style="text-align:center">num</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">2001</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">13</td>
-</tr>
-<tr>
-<td style="text-align:center">2001</td>
-<td style="text-align:center">2</td>
-<td style="text-align:center">14</td>
-</tr>
-<tr>
-<td style="text-align:center">2002</td>
-<td style="text-align:center">1</td>
-<td style="text-align:center">16</td>
-</tr>
-<tr>
-<td style="text-align:center">2002</td>
-<td style="text-align:center">2</td>
-<td style="text-align:center">17</td>
-</tr>
-</tbody>
-</table>
-<p>现在想转变为<br>| year | 1 | 2 |<br>| :——:| :——: | :——: |<br>| 2001 | 13 | 14 |<br>| 2002 | 16 | 17 |</p>
-<h4 id="case-when大法"><a href="#case-when大法" class="headerlink" title="case when大法"></a>case when大法</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SELECT </span><br><span class="line">	year,</span><br><span class="line">	sum( CASE month = 1 THEN num ELSE 0 END ) AS 1,</span><br><span class="line">	sum( CASE month = 2 THEN num ELSE 0 END ) AS 2 </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">GROUP BY</span><br><span class="line">	year</span><br></pre></td></tr></table></figure>
-<h3 id="where与having的区别"><a href="#where与having的区别" class="headerlink" title="where与having的区别"></a>where与having的区别</h3><p>Where 是一个约束声明，约束来自数据库的数据，在结果返回之前起作用的，where中不能使用聚合函数。<br>Having是一个过滤声明，在查询返回结果集以后对查询结果进行过滤操作，在Having中可以使用聚合函数。</p>
-<p>查询过程中聚合语句(sum,min,max,avg,count)要比having子句优先执行。而where子句在查询过程中执行优先级高于聚合语句。</p>
-<h4 id="having举例"><a href="#having举例" class="headerlink" title="having举例"></a>having举例</h4><p>查找平均工资大于3000的部门<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	deparment,</span><br><span class="line">	avg( salary ) AS average </span><br><span class="line">FROM</span><br><span class="line">	salary_info </span><br><span class="line">GROUP BY</span><br><span class="line">	deparment </span><br><span class="line">HAVING</span><br><span class="line">	average &gt; 3000</span><br></pre></td></tr></table></figure></p>
-<p>首先，average是用聚合函数得来的，其次，我们是对聚合后的结果进行筛选</p>
-<h4 id="where举例"><a href="#where举例" class="headerlink" title="where举例"></a>where举例</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	deparment,</span><br><span class="line">	count( * ) AS c </span><br><span class="line">FROM</span><br><span class="line">	salary_info </span><br><span class="line">WHERE</span><br><span class="line">	salary &gt; 3000 </span><br><span class="line">GROUP BY</span><br><span class="line">	deparment</span><br></pre></td></tr></table></figure>
-<h3 id="with-as-用法"><a href="#with-as-用法" class="headerlink" title="with as 用法"></a>with as 用法</h3><p>WITH AS短语，也叫做子查询部分（subquery factoring），可以定义一个SQL片断，该SQL片断会被整个SQL语句用到。可以使SQL语句的可读性更高，也可以在UNION ALL的不同部分，作为提供数据的部分。</p>
-<h4 id="案例-1"><a href="#案例-1" class="headerlink" title="案例"></a>案例</h4><p>单个CTE<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WITH cr AS ( SELECT CountryRegionCode FROM person.CountryRegion WHERE NAME LIKE &apos;C%&apos; ) </span><br><span class="line"></span><br><span class="line">SELECT</span><br><span class="line">* </span><br><span class="line">FROM</span><br><span class="line">	person.StateProvince </span><br><span class="line">WHERE</span><br><span class="line">	CountryRegionCode IN ( SELECT * FROM cr )</span><br></pre></td></tr></table></figure></p>
-<p>多个CTE<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">WITH </span><br><span class="line">cte1 AS ( SELECT * FROM table1 WHERE NAME LIKE &apos;abc%&apos; ),</span><br><span class="line">cte2 AS ( SELECT * FROM table2 WHERE id &gt; 20 ),</span><br><span class="line">cte3 AS ( SELECT * FROM table3 WHERE price &lt; 100 ) </span><br><span class="line"></span><br><span class="line">SELECT</span><br><span class="line">a.* </span><br><span class="line">FROM</span><br><span class="line">	cte1 a,</span><br><span class="line">	cte2 b,</span><br><span class="line">	cte3 c </span><br><span class="line">WHERE</span><br><span class="line">	a.id = b.id </span><br><span class="line">	AND a.id = c.id</span><br></pre></td></tr></table></figure></p>
-<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><ol>
-<li>CTE后面必须直接跟使用CTE的SQL语句</li>
-<li>CTE后面也可以跟其他的CTE，但只能使用一个with</li>
-<li>如果CTE的表达式名称与某个数据表重名，则紧跟在该CTE后面的SQL语句使用的仍然是CTE</li>
-<li>CTE 可以引用自身，也可以引用在同一 WITH 子句中预先定义的 CTE。不允许前向引用</li>
-<li>如果将 CTE 用在属于批处理的一部分的语句中，那么在它之前的语句必须以分号结尾</li>
-<li>不能在 CTE_query_definition 中使用以下子句：<br>（1）COMPUTE 或 COMPUTE BY<br>（2）ORDER BY（除非指定了 TOP 子句）<br>（3）INTO<br>（4）带有查询提示的 OPTION 子句<br>（5）FOR XML<br>（6）FOR BROWSE</li>
-<li>在HIVE中使用，或许要加：set hive.mapred.mode=nonstrict; <h3 id="hive中常用转化"><a href="#hive中常用转化" class="headerlink" title="hive中常用转化"></a>hive中常用转化</h3><h4 id="时间转换"><a href="#时间转换" class="headerlink" title="时间转换"></a>时间转换</h4>时间戳转年月日：<br>FROM_UNIXTIME(v.created_at, ‘yyyyMMdd’) as cre_time<br>注意：yyyyMMdd的大小写</li>
-</ol>
-<h4 id="保留X位小数-截断"><a href="#保留X位小数-截断" class="headerlink" title="保留X位小数+截断"></a>保留X位小数+截断</h4><p>CAST(‘123.456’ as decimal(38, 2)) ===&gt;123.46</p>
-<p>注：</p>
-<ol>
-<li><p>这里的decimal英文为: 小数, 十进制<br>decimal(38,2)<br>这里的38是这个小数的位数有多少位, 一般最大不超过38位<br>如果:<br>SELECT CAST(‘123.456’ as decimal(2, 2))<br>就会出错, 为什么呢, 因为这个123.456小数点后是3位值, 所以这个38这个位置最少是3</p>
-</li>
-<li><p>decimal后面的参数中的2是小数点后取几位, 是2就取两位, 是3就取三位! 并且是四舍五入后的结果</p>
-</li>
-<li><p>cast是转换数值的意思</p>
-</li>
-</ol>
-
+<p>注：只与查询相关，不涉及增删、改动table<br></p>
         </div>
         
+        
+            <hr style="height:1px;margin:1rem 0"/>
+            <div class="level is-mobile is-flex">
+                <div class="level-start">
+                    
+                    <div class="level-item is-size-7 is-uppercase">
+                        <i class="fas fa-tags has-text-grey"></i>&nbsp;
+                        <a class="has-link-grey -link" href="/tags/SQL/">SQL</a>,&nbsp;<a class="has-link-grey -link" href="/tags/数据分析/">数据分析</a>
+                    </div>
+                    
+            </div>
+            <div class="level-start">
+                <div class="level-item">
+                <a class="button is-size-7 is-light" href="/2019/05/13/SQL经验积累/#more">阅读更多</a>
+                </div>
+            </div>
+        </div>
         
         
     </div>
