@@ -16,7 +16,7 @@
 <meta property="og:description" content="本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
-<meta property="og:updated_time" content="2019-06-11T10:07:49.984Z">
+<meta property="og:updated_time" content="2019-06-11T13:58:40.278Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQL笔记">
 <meta name="twitter:description" content="本文持续更新，记录sql及hive使用经验 注：只与查询相关，不涉及增删、改动table">
@@ -201,7 +201,28 @@
 </tr>
 </tbody>
 </table>
-<p>现在想转变为<br>| year | 1 | 2 |<br>| :——:| :——: | :——: |<br>| 2001 | 13 | 14 |<br>| 2002 | 16 | 17 |</p>
+<p>现在想转变为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">year</th>
+<th style="text-align:center">1</th>
+<th style="text-align:center">2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">2001</td>
+<td style="text-align:center">13</td>
+<td style="text-align:center">14</td>
+</tr>
+<tr>
+<td style="text-align:center">2002</td>
+<td style="text-align:center">16</td>
+<td style="text-align:center">17</td>
+</tr>
+</tbody>
+</table>
 <h4 id="case-when大法"><a href="#case-when大法" class="headerlink" title="case when大法"></a>case when大法</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SELECT </span><br><span class="line">	year,</span><br><span class="line">	sum( CASE month = 1 THEN num ELSE 0 END ) AS 1,</span><br><span class="line">	sum( CASE month = 2 THEN num ELSE 0 END ) AS 2 </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">GROUP BY</span><br><span class="line">	year</span><br></pre></td></tr></table></figure>
 <h3 id="where与having的区别"><a href="#where与having的区别" class="headerlink" title="where与having的区别"></a>where与having的区别</h3><p>Where 是一个约束声明，约束来自数据库的数据，在结果返回之前起作用的，where中不能使用聚合函数。<br>Having是一个过滤声明，在查询返回结果集以后对查询结果进行过滤操作，在Having中可以使用聚合函数。</p>
 <p>查询过程中聚合语句(sum,min,max,avg,count)要比having子句优先执行。而where子句在查询过程中执行优先级高于聚合语句。</p>
