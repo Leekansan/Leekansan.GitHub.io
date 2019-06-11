@@ -137,6 +137,188 @@
     <div class="card-content article ">
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
+                <a class="has-link-black-ter" href="/2019/05/13/SQL经验积累/">SQL笔记</a>
+            
+        </h1>
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-05-13T08:00:46.000Z">2019-05-13</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/产品相关/">产品相关</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/产品相关/数据分析/">数据分析</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    6 分钟 读完 (大约 887 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <div class="content">
+            <p>###说在最前<br>本文持续更新，记录sql及hive使用经验</p>
+<p>注：只与查询相关，不涉及增删、改动table</p>
+<h3 id="多字段查询"><a href="#多字段查询" class="headerlink" title="多字段查询"></a>多字段查询</h3><h4 id="同一个表里的多个字段"><a href="#同一个表里的多个字段" class="headerlink" title="同一个表里的多个字段"></a>同一个表里的多个字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">WHERE</span><br><span class="line">	concat( col1, col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
+<h4 id="不同表不同字段"><a href="#不同表不同字段" class="headerlink" title="不同表不同字段"></a>不同表不同字段</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	* </span><br><span class="line">FROM</span><br><span class="line">	table_one t1</span><br><span class="line">	INNER JOIN table_two t2 ON t1.id = t2.id </span><br><span class="line">WHERE</span><br><span class="line">	concat( t1.col1, t2.col2 ) LIKE &apos;%keywords%&apos;</span><br></pre></td></tr></table></figure>
+<h3 id="行列转换"><a href="#行列转换" class="headerlink" title="行列转换"></a>行列转换</h3><h4 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h4><table>
+<thead>
+<tr>
+<th style="text-align:center">year</th>
+<th style="text-align:center">month</th>
+<th style="text-align:center">num</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">2001</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">13</td>
+</tr>
+<tr>
+<td style="text-align:center">2001</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">14</td>
+</tr>
+<tr>
+<td style="text-align:center">2002</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">16</td>
+</tr>
+<tr>
+<td style="text-align:center">2002</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">17</td>
+</tr>
+</tbody>
+</table>
+<p>现在想转变为<br>| year | 1 | 2 |<br>| :——:| :——: | :——: |<br>| 2001 | 13 | 14 |<br>| 2002 | 16 | 17 |</p>
+<h4 id="case-when大法"><a href="#case-when大法" class="headerlink" title="case when大法"></a>case when大法</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SELECT </span><br><span class="line">	year,</span><br><span class="line">	sum( CASE month = 1 THEN num ELSE 0 END ) AS 1,</span><br><span class="line">	sum( CASE month = 2 THEN num ELSE 0 END ) AS 2 </span><br><span class="line">FROM</span><br><span class="line">	table_one </span><br><span class="line">GROUP BY</span><br><span class="line">	year</span><br></pre></td></tr></table></figure>
+<h3 id="where与having的区别"><a href="#where与having的区别" class="headerlink" title="where与having的区别"></a>where与having的区别</h3><p>Where 是一个约束声明，约束来自数据库的数据，在结果返回之前起作用的，where中不能使用聚合函数。<br>Having是一个过滤声明，在查询返回结果集以后对查询结果进行过滤操作，在Having中可以使用聚合函数。</p>
+<p>查询过程中聚合语句(sum,min,max,avg,count)要比having子句优先执行。而where子句在查询过程中执行优先级高于聚合语句。</p>
+<h4 id="having举例"><a href="#having举例" class="headerlink" title="having举例"></a>having举例</h4><p>查找平均工资大于3000的部门<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	deparment,</span><br><span class="line">	avg( salary ) AS average </span><br><span class="line">FROM</span><br><span class="line">	salary_info </span><br><span class="line">GROUP BY</span><br><span class="line">	deparment </span><br><span class="line">HAVING</span><br><span class="line">	average &gt; 3000</span><br></pre></td></tr></table></figure></p>
+<p>首先，average是用聚合函数得来的，其次，我们是对聚合后的结果进行筛选</p>
+<h4 id="where举例"><a href="#where举例" class="headerlink" title="where举例"></a>where举例</h4><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	deparment,</span><br><span class="line">	count( * ) AS c </span><br><span class="line">FROM</span><br><span class="line">	salary_info </span><br><span class="line">WHERE</span><br><span class="line">	salary &gt; 3000 </span><br><span class="line">GROUP BY</span><br><span class="line">	deparment</span><br></pre></td></tr></table></figure>
+<h3 id="with-as-用法"><a href="#with-as-用法" class="headerlink" title="with as 用法"></a>with as 用法</h3><p>WITH AS短语，也叫做子查询部分（subquery factoring），可以定义一个SQL片断，该SQL片断会被整个SQL语句用到。可以使SQL语句的可读性更高，也可以在UNION ALL的不同部分，作为提供数据的部分。</p>
+<h4 id="案例-1"><a href="#案例-1" class="headerlink" title="案例"></a>案例</h4><p>单个CTE<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WITH cr AS ( SELECT CountryRegionCode FROM person.CountryRegion WHERE NAME LIKE &apos;C%&apos; ) </span><br><span class="line"></span><br><span class="line">SELECT</span><br><span class="line">* </span><br><span class="line">FROM</span><br><span class="line">	person.StateProvince </span><br><span class="line">WHERE</span><br><span class="line">	CountryRegionCode IN ( SELECT * FROM cr )</span><br></pre></td></tr></table></figure></p>
+<p>多个CTE<br><figure class="highlight plain hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">WITH </span><br><span class="line">cte1 AS ( SELECT * FROM table1 WHERE NAME LIKE &apos;abc%&apos; ),</span><br><span class="line">cte2 AS ( SELECT * FROM table2 WHERE id &gt; 20 ),</span><br><span class="line">cte3 AS ( SELECT * FROM table3 WHERE price &lt; 100 ) </span><br><span class="line"></span><br><span class="line">SELECT</span><br><span class="line">a.* </span><br><span class="line">FROM</span><br><span class="line">	cte1 a,</span><br><span class="line">	cte2 b,</span><br><span class="line">	cte3 c </span><br><span class="line">WHERE</span><br><span class="line">	a.id = b.id </span><br><span class="line">	AND a.id = c.id</span><br></pre></td></tr></table></figure></p>
+<h4 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h4><ol>
+<li>CTE后面必须直接跟使用CTE的SQL语句</li>
+<li>CTE后面也可以跟其他的CTE，但只能使用一个with</li>
+<li>如果CTE的表达式名称与某个数据表重名，则紧跟在该CTE后面的SQL语句使用的仍然是CTE</li>
+<li>CTE 可以引用自身，也可以引用在同一 WITH 子句中预先定义的 CTE。不允许前向引用</li>
+<li>如果将 CTE 用在属于批处理的一部分的语句中，那么在它之前的语句必须以分号结尾</li>
+<li>不能在 CTE_query_definition 中使用以下子句：<br>（1）COMPUTE 或 COMPUTE BY<br>（2）ORDER BY（除非指定了 TOP 子句）<br>（3）INTO<br>（4）带有查询提示的 OPTION 子句<br>（5）FOR XML<br>（6）FOR BROWSE</li>
+<li>在HIVE中使用，或许要加：set hive.mapred.mode=nonstrict; <h3 id="hive中常用转化"><a href="#hive中常用转化" class="headerlink" title="hive中常用转化"></a>hive中常用转化</h3><h4 id="时间转换"><a href="#时间转换" class="headerlink" title="时间转换"></a>时间转换</h4>时间戳转年月日：<br>FROM_UNIXTIME(v.created_at, ‘yyyyMMdd’) as cre_time<br>注意：yyyyMMdd的大小写</li>
+</ol>
+<h4 id="保留X位小数-截断"><a href="#保留X位小数-截断" class="headerlink" title="保留X位小数+截断"></a>保留X位小数+截断</h4><p>CAST(‘123.456’ as decimal(38, 2)) ===&gt;123.46</p>
+<p>注：</p>
+<ol>
+<li><p>这里的decimal英文为: 小数, 十进制<br>decimal(38,2)<br>这里的38是这个小数的位数有多少位, 一般最大不超过38位<br>如果:<br>SELECT CAST(‘123.456’ as decimal(2, 2))<br>就会出错, 为什么呢, 因为这个123.456小数点后是3位值, 所以这个38这个位置最少是3</p>
+</li>
+<li><p>decimal后面的参数中的2是小数点后取几位, 是2就取两位, 是3就取三位! 并且是四舍五入后的结果</p>
+</li>
+<li><p>cast是转换数值的意思</p>
+</li>
+</ol>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    <div class="card">
+    
+    <div class="card-content article ">
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                <a class="has-link-black-ter" href="/2019/05/11/《重说中国近代史》读书笔记/">《重说中国近代史》读书笔记</a>
+            
+        </h1>
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-05-11T08:00:46.000Z">2019-05-11</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/读书笔记/">读书笔记</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/读书笔记/历史相关/">历史相关</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    9 分钟 读完 (大约 1287 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <div class="content">
+            <h2 id="中国近代政治史开场白"><a href="#中国近代政治史开场白" class="headerlink" title="中国近代政治史开场白"></a>中国近代政治史开场白</h2><p>为什么学历史？历史是民族的记忆。当前国内大部分学校的近代史更像是政治课，灌输政治观念、意识形态，与其说是历史，不如说是观念史。</p>
+<p>我国的近代史，有一个范文澜、胡绳的基本模式，该模式通常两种线索，其一是帝国主义侵略论，强调受苦遭罪，证明我们的落后是受侵略造成的。其二是三大革命论，强调该过程同样也是革命、反抗的过程。这一段折腾的历史很容易让我们忽略清末的丰富变化，不知道该怎么走后面的路，不知道为什么要改革、开放、还要学洋人那套东西。</p>
+<p>所以，如果我们不知道近代中国是怎样融入世界的，而是在只强调我们一直在革命，那我们就不会明白为什么要放下革命搞建设，不明白为什么要改革开放，结果就是重来再重来。</p>
+<h3 id="近代史的三妇心态"><a href="#近代史的三妇心态" class="headerlink" title="近代史的三妇心态"></a>近代史的三妇心态</h3><p>国内对中国近代史三种惯常态度：</p>
+<p>怨妇心态：凡事以哭闹为主，苦大仇深，露出伤疤给人看。</p>
+<p>泼妇心态：凡事讲打，打不过就挠，把整个近代史写成了反抗史，虽然只是挠到别人脸，但还是觉得很好，创造出许多神话。</p>
+<p>情妇心态：觉得被殖民是好事，认为不殖民怎么能进步，上流精英或精神精英只看到殖民者带来的文明而故意忽略奴役和压迫，真是变态！</p>
+<p>故，摆正心态是重新观察近代史前应该干的第一件事。</p>
+<h3 id="中西两种体系"><a href="#中西两种体系" class="headerlink" title="中西两种体系"></a>中西两种体系</h3><h4 id="中国"><a href="#中国" class="headerlink" title="中国"></a>中国</h4><p>中国是天下体系，亦称朝贡体系。内敛内缩内向，觉得老子天下第一，别人向慕王化。天下体系是一个圆，中国是中心，不会管外面有多大，其他国家来不来随他们的便。通过文化传播让其他国家仰慕、朝贡。</p>
+<h4 id="西方"><a href="#西方" class="headerlink" title="西方"></a>西方</h4><p>西方是世界体系，输出型，不断将自己的体系向外输出（都他妈是基督教救世情节搞的）。能殖民的殖民，不能殖民的将其纳入到自己的体系中来。</p>
+<h4 id="碰撞"><a href="#碰撞" class="headerlink" title="碰撞"></a>碰撞</h4><p>两种体系碰撞，天下体系崩了。开始是被动接受，后来半推半就，最后全面接受。西方世界迎合了人类追求和创造财富的需求（洞察人的欲望），内在驱动驱使人们开启近代化。</p>
+<h4 id="中国的抵抗"><a href="#中国的抵抗" class="headerlink" title="中国的抵抗"></a>中国的抵抗</h4><p>有抵抗，比如义和团，但无效。</p>
+<p>中国古代是进步很慢的，在科技上未取得进展性突破。现在走上了世界都在走的一条道路，想跳脱出来走特色道路很难。</p>
+<p>挨打后开始学习，学习西方，学习日本，想走捷径，但学起来也难受。</p>
+<p>现代西方对日本文化评价很高，就是因为日本熬出头了，走出历史了。</p>
+<p>今天的我们应该怎么看待历史？ 冷静的审视过去，不在一个坑里反复折腾。</p>
+<h2 id="两个世界最初的碰撞"><a href="#两个世界最初的碰撞" class="headerlink" title="两个世界最初的碰撞"></a>两个世界最初的碰撞</h2><p>两个体系刚开始碰撞时，中国人的了解不多，事实上是完全不了解。而英国人有明确的目标，即以最小的成本解决商业纠纷，在中国赚钱。</p>
+<h3 id="中国近代史的不同开端"><a href="#中国近代史的不同开端" class="headerlink" title="中国近代史的不同开端"></a>中国近代史的不同开端</h3><p>丁韪良将近代史分为六段：</p>
+<ol>
+<li>鸦片战争，洪秀全创教</li>
+<li>第二次鸦片战争</li>
+<li>中法战争</li>
+<li>中日甲午战争</li>
+<li>义和团运动</li>
+<li>日俄战争及中国新政</li>
+</ol>
+<p>丁韪良的划分纯粹以外国人的感知来看的。</p>
+<p>如果按西方世界史的发展脉络划分，中国近代史的起点可能回到明朝中叶。但这是西方的划分方法，民族国家的兴起和手工业的革命为西方近代史发展提供了可能。</p>
+<p>总结：对比西方，中国在明朝中叶就已经落后了。发展是需要发明积累的，如蒸汽机之前的铺垫，这些中国没有。</p>
+<h3 id="中国和英国的第一次碰撞"><a href="#中国和英国的第一次碰撞" class="headerlink" title="中国和英国的第一次碰撞"></a>中国和英国的第一次碰撞</h3><h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>以往皇帝是政治权威，孔子是思想权威，士大夫则是思想权威解释者（挺像西方君主——宗教的关系）现在清朝皇帝阐释经典，剥夺了士大夫的权力。乾隆好大喜功，国库亏空。（感觉此段与本章主旨无太大关联）</p>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    <div class="card">
+    
+    <div class="card-content article ">
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
                 <a class="has-link-black-ter" href="/2019/02/18/新春拜年故事/">新春拜年故事</a>
             
         </h1>
@@ -295,7 +477,7 @@
                     
                     <div class="level-item is-size-7 is-uppercase">
                         <i class="fas fa-tags has-text-grey"></i>&nbsp;
-                        <a class="has-link-grey -link" href="/tags/法学/">法学</a>
+                        <a class="has-link-grey -link" href="/tags/书/">书</a>,&nbsp;<a class="has-link-grey -link" href="/tags/法学/">法学</a>,&nbsp;<a class="has-link-grey -link" href="/tags/经典/">经典</a>
                     </div>
                     
             </div>
@@ -625,134 +807,6 @@
 
 
 
-    <div class="card">
-    
-    <div class="card-content article ">
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/2018/01/03/李国情北漂记/">李国情北漂记</a>
-            
-        </h1>
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2018-01-03T05:45:12.000Z">2018-01-03</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/散文/">散文</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/散文/叙事/">叙事</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    8 分钟 读完 (大约 1204 个字)
-                </span>
-                
-                
-            </div>
-        </div>
-        
-        <div class="content">
-            <blockquote>
-<p>本文写于2017年中，正值全国高考，广东卷的题目乃是写出中国特色，要求使用高铁、支付宝、共享单车等词，于是就写了一篇自认为切题的作文。</p>
-</blockquote>
-<p>庆丰爷还在的时候，也是“情怀”逐渐被用烂的时候。李国情算是个文青，比较讲究真情怀，看不惯这世上的无病呻吟和虚情假意。于是在看到新世相发布的那个“逃离北上广”后的那夜凌晨，他坐上了成都开往北京的和谐号，成了一个北漂，带了一个钱包，舍了万贯家财。<br></p>
-        </div>
-        
-        
-            <hr style="height:1px;margin:1rem 0"/>
-            <div class="level is-mobile is-flex">
-                <div class="level-start">
-                    
-                    <div class="level-item is-size-7 is-uppercase">
-                        <i class="fas fa-tags has-text-grey"></i>&nbsp;
-                        <a class="has-link-grey -link" href="/tags/中国/">中国</a>,&nbsp;<a class="has-link-grey -link" href="/tags/作文/">作文</a>,&nbsp;<a class="has-link-grey -link" href="/tags/社会/">社会</a>
-                    </div>
-                    
-            </div>
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2018/01/03/李国情北漂记/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
-        
-    </div>
-</div>
-
-
-
-
-
-
-
-
-    <div class="card">
-    
-    <div class="card-content article ">
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/2018/01/03/北城雾霾小史/">北城雾霾小史</a>
-            
-        </h1>
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2018-01-03T05:39:33.000Z">2018-01-03</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/散文/">散文</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/散文/叙事/">叙事</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    20 分钟 读完 (大约 3010 个字)
-                </span>
-                
-                
-            </div>
-        </div>
-        
-        <div class="content">
-            <blockquote>
-<p>本文写于16年底或17年初，具体时间已记不太清。但倍感欣慰的是，今年山东的空气总算好了很多，从连续重度到了时常轻度，可以说是进步不小，值得庆祝。</p>
-</blockquote>
-<p>今早阳光明媚，本想着应该是个大好天气结果朋友圈告诉我广州今日仍是重度污染。很多同学直呼呛得慌，街上还有不少人戴上了口罩，大有黑霾压城之感。远在南国有重重山峦阻隔的岭南，到底也还是躲不了这肆虐全国的霾灾。不知是幸运还是不幸，我始终对如此低浓度的ＰＭ２.５没有什么感觉，大概是从小习惯了的缘故吧。<br></p>
-        </div>
-        
-        
-            <hr style="height:1px;margin:1rem 0"/>
-            <div class="level is-mobile is-flex">
-                <div class="level-start">
-                    
-                    <div class="level-item is-size-7 is-uppercase">
-                        <i class="fas fa-tags has-text-grey"></i>&nbsp;
-                        <a class="has-link-grey -link" href="/tags/故乡/">故乡</a>,&nbsp;<a class="has-link-grey -link" href="/tags/生活/">生活</a>,&nbsp;<a class="has-link-grey -link" href="/tags/社会/">社会</a>
-                    </div>
-                    
-            </div>
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2018/01/03/北城雾霾小史/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
-        
-    </div>
-</div>
-
-
-
-
-
-
-
-
 
     
 <div class="card card-transparent">
@@ -815,7 +869,7 @@
                         文章
                     </p>
                     <p class="title has-text-weight-normal">
-                        11
+                        13
                     </p>
                 </a>
             </div>
@@ -825,7 +879,7 @@
                         分类
                     </p>
                     <p class="title has-text-weight-normal">
-                        10
+                        13
                     </p>
                 </a>
             </div>
@@ -835,7 +889,7 @@
                         标签
                     </p>
                     <p class="title has-text-weight-normal">
-                        13
+                        19
                     </p>
                 </a>
             </div>
@@ -907,6 +961,17 @@
         <ul class="menu-list">
         
         <li>
+            <a class="level is-marginless" href="/archives/2019/05/">
+                <span class="level-start">
+                    <span class="level-item">五月 2019</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">2</span>
+                </span>
+            </a>
+        </li>
+        
+        <li>
             <a class="level is-marginless" href="/archives/2019/02/">
                 <span class="level-start">
                     <span class="level-item">二月 2019</span>
@@ -950,7 +1015,7 @@
         <h3 class="menu-label">
             标签云
         </h3>
-        <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/中国/" style="font-size: 15px;">中国</a> <a href="/tags/互联网/" style="font-size: 10px;">互联网</a> <a href="/tags/人物/" style="font-size: 10px;">人物</a> <a href="/tags/传统/" style="font-size: 15px;">传统</a> <a href="/tags/作文/" style="font-size: 10px;">作文</a> <a href="/tags/商业/" style="font-size: 10px;">商业</a> <a href="/tags/故乡/" style="font-size: 15px;">故乡</a> <a href="/tags/法学/" style="font-size: 10px;">法学</a> <a href="/tags/生活/" style="font-size: 20px;">生活</a> <a href="/tags/社会/" style="font-size: 15px;">社会</a> <a href="/tags/经济/" style="font-size: 10px;">经济</a> <a href="/tags/金融/" style="font-size: 10px;">金融</a>
+        <a href="/tags/Python/" style="font-size: 15px;">Python</a> <a href="/tags/SQL/" style="font-size: 10px;">SQL</a> <a href="/tags/中国/" style="font-size: 20px;">中国</a> <a href="/tags/书/" style="font-size: 10px;">书</a> <a href="/tags/互联网/" style="font-size: 10px;">互联网</a> <a href="/tags/人物/" style="font-size: 10px;">人物</a> <a href="/tags/传统/" style="font-size: 15px;">传统</a> <a href="/tags/作文/" style="font-size: 10px;">作文</a> <a href="/tags/历史/" style="font-size: 10px;">历史</a> <a href="/tags/商业/" style="font-size: 10px;">商业</a> <a href="/tags/故乡/" style="font-size: 15px;">故乡</a> <a href="/tags/数据分析/" style="font-size: 10px;">数据分析</a> <a href="/tags/法学/" style="font-size: 10px;">法学</a> <a href="/tags/生活/" style="font-size: 20px;">生活</a> <a href="/tags/社会/" style="font-size: 15px;">社会</a> <a href="/tags/经典/" style="font-size: 10px;">经典</a> <a href="/tags/经济/" style="font-size: 10px;">经济</a> <a href="/tags/近代史/" style="font-size: 10px;">近代史</a> <a href="/tags/金融/" style="font-size: 10px;">金融</a>
     </div>
 </div>
 
@@ -964,6 +1029,32 @@
         <h3 class="menu-label">
             最新文章
         </h3>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-05-13T08:00:46.000Z">2019-05-13</time></div>
+                    <a href="/2019/05/13/SQL经验积累/" class="has-link-black-ter is-size-6">SQL笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/产品相关/">产品相关</a> / <a class="has-link-grey -link" href="/categories/产品相关/数据分析/">数据分析</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-05-11T08:00:46.000Z">2019-05-11</time></div>
+                    <a href="/2019/05/11/《重说中国近代史》读书笔记/" class="has-link-black-ter is-size-6">《重说中国近代史》读书笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/读书笔记/">读书笔记</a> / <a class="has-link-grey -link" href="/categories/读书笔记/历史相关/">历史相关</a>
+                    </p>
+                </div>
+            </div>
+        </article>
         
         <article class="media">
             
@@ -1004,32 +1095,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2018-01-07T12:31:47.000Z">2018-01-07</time></div>
-                    <a href="/2018/01/07/Python学习笔记（二）：高级特性/" class="has-link-black-ter is-size-6">Python学习笔记（三）：高级特性</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/编程/">编程</a> / <a class="has-link-grey -link" href="/categories/编程/Python/">Python</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2018-01-06T14:01:01.000Z">2018-01-06</time></div>
-                    <a href="/2018/01/06/Python学习笔记（二）：函数/" class="has-link-black-ter is-size-6">Python学习笔记（二）：函数</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/编程/">编程</a> / <a class="has-link-grey -link" href="/categories/编程/Python/">Python</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
 
@@ -1043,6 +1108,22 @@
             </h3>
             <ul class="menu-list">
             <li>
+        <a class="level is-marginless" href="/categories/产品相关/">
+            <span class="level-start">
+                <span class="level-item">产品相关</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/产品相关/数据分析/">
+            <span class="level-start">
+                <span class="level-item">数据分析</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li><li>
         <a class="level is-marginless" href="/categories/散文/">
             <span class="level-start">
                 <span class="level-item">散文</span>
@@ -1112,9 +1193,17 @@
                 <span class="level-item">读书笔记</span>
             </span>
             <span class="level-end">
-                <span class="level-item tag">1</span>
+                <span class="level-item tag">2</span>
             </span>
         </a><ul><li>
+        <a class="level is-marginless" href="/categories/读书笔记/历史相关/">
+            <span class="level-start">
+                <span class="level-item">历史相关</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
         <a class="level is-marginless" href="/categories/读书笔记/法学相关/">
             <span class="level-start">
                 <span class="level-item">法学相关</span>
@@ -1144,9 +1233,23 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/SQL/">
+                        <span class="tag">SQL</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/中国/">
                         <span class="tag">中国</span>
-                        <span class="tag is-grey">3</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/书/">
+                        <span class="tag">书</span>
+                        <span class="tag is-grey">1</span>
                     </a>
                 </div>
                 
@@ -1179,6 +1282,13 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/历史/">
+                        <span class="tag">历史</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/商业/">
                         <span class="tag">商业</span>
                         <span class="tag is-grey">1</span>
@@ -1189,6 +1299,13 @@
                     <a class="tags has-addons" href="/tags/故乡/">
                         <span class="tag">故乡</span>
                         <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/数据分析/">
+                        <span class="tag">数据分析</span>
+                        <span class="tag is-grey">1</span>
                     </a>
                 </div>
                 
@@ -1214,8 +1331,22 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/经典/">
+                        <span class="tag">经典</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/经济/">
                         <span class="tag">经济</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/近代史/">
+                        <span class="tag">近代史</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
@@ -1254,6 +1385,32 @@
             
             <div class="media-content">
                 <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-05-13T08:00:46.000Z">2019-05-13</time></div>
+                    <a href="/2019/05/13/SQL经验积累/" class="has-link-black-ter is-size-6">SQL笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/产品相关/">产品相关</a> / <a class="has-link-grey -link" href="/categories/产品相关/数据分析/">数据分析</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-05-11T08:00:46.000Z">2019-05-11</time></div>
+                    <a href="/2019/05/11/《重说中国近代史》读书笔记/" class="has-link-black-ter is-size-6">《重说中国近代史》读书笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        <a class="has-link-grey -link" href="/categories/读书笔记/">读书笔记</a> / <a class="has-link-grey -link" href="/categories/读书笔记/历史相关/">历史相关</a>
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <div class="media-content">
+                <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2019-02-18T03:29:13.000Z">2019-02-18</time></div>
                     <a href="/2019/02/18/新春拜年故事/" class="has-link-black-ter is-size-6">新春拜年故事</a>
                     <p class="is-size-7 is-uppercase">
@@ -1289,32 +1446,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2018-01-07T12:31:47.000Z">2018-01-07</time></div>
-                    <a href="/2018/01/07/Python学习笔记（二）：高级特性/" class="has-link-black-ter is-size-6">Python学习笔记（三）：高级特性</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/编程/">编程</a> / <a class="has-link-grey -link" href="/categories/编程/Python/">Python</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
-        <article class="media">
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2018-01-06T14:01:01.000Z">2018-01-06</time></div>
-                    <a href="/2018/01/06/Python学习笔记（二）：函数/" class="has-link-black-ter is-size-6">Python学习笔记（二）：函数</a>
-                    <p class="is-size-7 is-uppercase">
-                        <a class="has-link-grey -link" href="/categories/编程/">编程</a> / <a class="has-link-grey -link" href="/categories/编程/Python/">Python</a>
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
 
@@ -1328,6 +1459,22 @@
             </h3>
             <ul class="menu-list">
             <li>
+        <a class="level is-marginless" href="/categories/产品相关/">
+            <span class="level-start">
+                <span class="level-item">产品相关</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/产品相关/数据分析/">
+            <span class="level-start">
+                <span class="level-item">数据分析</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li><li>
         <a class="level is-marginless" href="/categories/散文/">
             <span class="level-start">
                 <span class="level-item">散文</span>
@@ -1397,9 +1544,17 @@
                 <span class="level-item">读书笔记</span>
             </span>
             <span class="level-end">
-                <span class="level-item tag">1</span>
+                <span class="level-item tag">2</span>
             </span>
         </a><ul><li>
+        <a class="level is-marginless" href="/categories/读书笔记/历史相关/">
+            <span class="level-start">
+                <span class="level-item">历史相关</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
         <a class="level is-marginless" href="/categories/读书笔记/法学相关/">
             <span class="level-start">
                 <span class="level-item">法学相关</span>
@@ -1429,9 +1584,23 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/SQL/">
+                        <span class="tag">SQL</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/中国/">
                         <span class="tag">中国</span>
-                        <span class="tag is-grey">3</span>
+                        <span class="tag is-grey">4</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/书/">
+                        <span class="tag">书</span>
+                        <span class="tag is-grey">1</span>
                     </a>
                 </div>
                 
@@ -1464,6 +1633,13 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/历史/">
+                        <span class="tag">历史</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/商业/">
                         <span class="tag">商业</span>
                         <span class="tag is-grey">1</span>
@@ -1474,6 +1650,13 @@
                     <a class="tags has-addons" href="/tags/故乡/">
                         <span class="tag">故乡</span>
                         <span class="tag is-grey">3</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/数据分析/">
+                        <span class="tag">数据分析</span>
+                        <span class="tag is-grey">1</span>
                     </a>
                 </div>
                 
@@ -1499,8 +1682,22 @@
                 </div>
                 
                 <div class="control">
+                    <a class="tags has-addons" href="/tags/经典/">
+                        <span class="tag">经典</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
                     <a class="tags has-addons" href="/tags/经济/">
                         <span class="tag">经济</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/近代史/">
+                        <span class="tag">近代史</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
